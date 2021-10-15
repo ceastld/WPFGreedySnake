@@ -1,0 +1,17 @@
+﻿<UserControl
+    x:Class="WPFGreedySnake.Controls.CrashControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:WPFGreedySnake.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <Grid Width="20" Height="20">
+        <Border
+            Width="10"
+            Height="40"
+            Margin="0,-10"
+            Background="Purple"
+            CornerRadius="5" />
+    </Grid>
+</UserControl>
