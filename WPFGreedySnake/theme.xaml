@@ -11,6 +11,7 @@
                 <ControlTemplate TargetType="{x:Type controls:SnakePartControl}">
                     <Border
                         Name="TheBorder"
+                        
                         Width="20"
                         Height="20"
                         Background="{TemplateBinding Background}"
