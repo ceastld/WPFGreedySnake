@@ -51,35 +51,17 @@ namespace WPFGreedySnake
             {
                 switch ((string)item.Tag)
                 {
-                    case "Restart":
-                        this.Restart();
-                        break;
+                    case "Restart": GameStart(clear: true); break;
                     case "Introduction":
                         MessageHelper.ShowInformation(@"↑↓→← 或者 W,S,A,D 移动");
                         break;
-                    case "SpeedPlus":
-                        if (Speed > 20) return;
-                        Speed++;
-                        Timer.Interval = TimeSpan.FromSeconds(1.0 / Speed);
-                        break;
-                    case "SpeedSub":
-                        if (Speed < 2) return;
-                        Speed--;
-                        Timer.Interval = TimeSpan.FromSeconds(1.0 / Speed);
-                        break;
-                    case "Stop": Timer.Stop(); break;
-                    case "Start": Timer.Start(); break;
+                    case "SpeedPlus": Speed++; break;
+                    case "SpeedSub": Speed--; break;
+                    case "Stop": GameStop(); break;
+                    case "Start": GameStart(); break;
                     default: break;
                 }
             }
-        }
-
-        private void Restart()
-        {
-            Snake.Reset();
-            Score = 0;
-            currentDirection = MoveDirection.Right;
-            Timer.Start();
         }
 
         private Snake Snake;
@@ -91,18 +73,51 @@ namespace WPFGreedySnake
             {
                 case Key.Left:
                 case Key.A:
-                    if (currentDirection != MoveDirection.Right) currentDirection = MoveDirection.Left; break;
+                    SetDirection(MoveDirection.Left); break;
                 case Key.Up:
                 case Key.W:
-                    if (currentDirection != MoveDirection.Down) currentDirection = MoveDirection.Up; break;
+                    SetDirection(MoveDirection.Up); break;
                 case Key.Right:
                 case Key.D:
-                    if (currentDirection != MoveDirection.Left) currentDirection = MoveDirection.Right; break;
+                    SetDirection(MoveDirection.Right); break;
                 case Key.Down:
                 case Key.S:
-                    if (currentDirection != MoveDirection.Up) currentDirection = MoveDirection.Down; break;
+                    SetDirection(MoveDirection.Down); break;
+                case Key.Space:
+                    if (Timer.IsEnabled) { GameStop(); } else { GameStart(); }
+                    break;
                 default: return;
             }
+        }
+        private void SetDirection(MoveDirection direction)
+        {
+            MoveDirection reverse;
+            switch (direction)
+            {
+                case MoveDirection.Left:
+                    reverse = MoveDirection.Right;
+                    break;
+                case MoveDirection.Up:
+                    reverse = MoveDirection.Down;
+                    break;
+                case MoveDirection.Right:
+                    reverse = MoveDirection.Left;
+                    break;
+                case MoveDirection.Down:
+                    reverse = MoveDirection.Up;
+                    break;
+                default:
+                    return;
+            }
+            if (currentDirection == direction)
+            {
+                Speed += 1; return;
+            }
+            if (currentDirection == reverse)
+            {
+                Speed -= 1; return;
+            }
+            currentDirection = direction;
         }
         private void TheWindow_ContentRendered(object sender, EventArgs e)
         {
@@ -111,7 +126,7 @@ namespace WPFGreedySnake
             Snake.Collided += (s1, e1) =>
             {
                 MessageHelper.ShowInformation("游戏结束");
-                Timer.Stop();
+                GameStop(true);
             };
             Snake.GrowUp += (s, ea) =>
             {
@@ -120,7 +135,6 @@ namespace WPFGreedySnake
             };
             Timer.Interval = TimeSpan.FromSeconds(1.0 / Speed);
             Timer.Tick += Timer_Tick;
-            Timer.Start();
         }
 
         private void DrawGameArea()
@@ -175,7 +189,40 @@ namespace WPFGreedySnake
         public int Speed
         {
             get { return speed; }
-            set { speed = value; OnPropertyChanged(nameof(Speed)); }
+            set
+            {
+                if (value < 1 || value > 30) return;
+                speed = value;
+                OnPropertyChanged(nameof(Speed));
+                Timer.Interval = TimeSpan.FromSeconds(1.0 / value);
+            }
+        }
+
+        private void TheStartButton_Click(object sender, RoutedEventArgs e) => GameStart();
+
+        private void GameStart(bool clear = false)
+        {
+            if (gameover || clear)
+            {
+                Snake.Reset();
+                Score = 0;
+                currentDirection = MoveDirection.Right;
+                gameover = false;
+                Timer.Start();
+            }
+            else
+            {
+                Timer.Start();
+            }
+            TheStopGrid.Visibility = Visibility.Collapsed;
+        }
+        private bool gameover;
+
+        private void GameStop(bool over = false)
+        {
+            gameover = over;
+            Timer.Stop();
+            TheStopGrid.Visibility = Visibility.Visible;
         }
     }
 }

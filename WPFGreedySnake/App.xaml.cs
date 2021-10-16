@@ -19,7 +19,7 @@ namespace WPFGreedySnake
             {
                 var window = new MainWindow();
                 window.Show();
-                window.Focus();
+                window.Activate();
             });
         }
     }
